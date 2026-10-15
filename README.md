@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MediSlot — Appointment Management System
+
+MediSlot is a web-based appointment management application designed to help manage patient appointments through a simple dashboard. It supports creating appointments, viewing schedules, searching records, updating appointment statuses, and deleting appointments.
+
+## Features
+
+- **Dashboard:** View appointment statistics and today's schedule.
+- **Create appointments:** Record patient names, appointment dates and times, doctors, and appointment types.
+- **Manage appointments:** View and delete appointment records.
+- **Update status:** Mark appointments as Scheduled, Completed, or Cancelled.
+- **Search:** Find appointments by patient name, doctor, or appointment type.
+- **Filter:** Filter appointments by status.
+- **Database integration:** Store appointment records in PostgreSQL.
+- **REST API:** Manage appointment data through Next.js API routes.
+
+## Technology Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- PostgreSQL
+- Node.js
+- Git and GitHub
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+Install the following tools before running the application:
+
+- Node.js and npm
+- PostgreSQL
+- Git
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/trishaldinujaya-debug/medislot.git
+cd medislot
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a `.env.local` file in the project root and add your PostgreSQL connection string:
+
+```env
+DATABASE_URL=your_postgresql_connection_string
+```
+
+Replace the placeholder with your own database connection string. Never commit `.env.local` or publish database credentials.
+
+### 4. Set up the database
+
+Create a PostgreSQL database named `medislot` and ensure the `appointments` table has the schema required by the application.
+
+### 5. Run the development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API Endpoints
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Method | Endpoint | Purpose |
+|---|---|---|
+| GET | `/api/health` | Check database connectivity |
+| GET | `/api/appointments` | Retrieve appointments |
+| POST | `/api/appointments` | Create an appointment |
+| PATCH | `/api/appointments/[id]` | Update appointment status |
+| DELETE | `/api/appointments/[id]` | Delete an appointment |
 
-## Learn More
+## Production Build
 
-To learn more about Next.js, take a look at the following resources:
+To check and build the application for production:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Repository
 
-## Deploy on Vercel
+[View MediSlot on GitHub](https://github.com/trishaldinujaya-debug/medislot)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Future Improvements
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- User authentication and role-based access
+- Appointment reminders
+- Pagination and advanced filtering
+- Automated testing
+- Production deployment
+
+---
+
+**MediSlot** — Simplifying appointment management.
