@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -67,9 +68,7 @@ function getInitials(name: string) {
 function formatDate(date: string) {
   const parts = date.split("-").map(Number);
 
-  if (parts.length !== 3 || parts.some(Number.isNaN)) {
-    return date;
-  }
+  if (parts.length !== 3 || parts.some(Number.isNaN)) return date;
 
   return new Date(parts[0], parts[1] - 1, parts[2], 12).toLocaleDateString(
     "en-GB",
@@ -171,9 +170,14 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAppointmentId, setEditingAppointmentId] = useState<
+    string | number | null
+  >(null);
   const [form, setForm] = useState<AppointmentForm>(emptyForm);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+
+  const isEditing = editingAppointmentId !== null;
 
   const loadAppointments = useCallback(async () => {
     setIsLoading(true);
@@ -264,6 +268,7 @@ export default function Home() {
   }, [appointments, search, statusFilter, dateFilter, today]);
 
   function openCreateModal() {
+    setEditingAppointmentId(null);
     setForm({
       ...emptyForm,
       date: today || getTodayInColombo(),
@@ -273,14 +278,30 @@ export default function Home() {
     setIsModalOpen(true);
   }
 
+  function handleEditAppointment(appointment: Appointment) {
+    setEditingAppointmentId(appointment.id);
+    setForm({
+      patient: appointment.patient,
+      date: appointment.date,
+      time: appointment.time,
+      doctor: appointment.doctor,
+      type: appointment.type,
+      status: appointment.status,
+    });
+    setError("");
+    setNotice("");
+    setIsModalOpen(true);
+  }
+
   function closeModal() {
     if (!isSaving) {
       setIsModalOpen(false);
+      setEditingAppointmentId(null);
       setError("");
     }
   }
 
-  async function handleCreateAppointment(
+  async function handleSaveAppointment(
     event: React.FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
@@ -306,33 +327,58 @@ export default function Home() {
     setIsSaving(true);
 
     try {
-      const response = await fetch("/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          patient: form.patient.trim(),
-          date: form.date,
-          time: form.time,
-          doctor: form.doctor.trim(),
-          type: form.type,
-          status: form.status,
-        }),
-      });
+      const payload = {
+        patient: form.patient.trim(),
+        date: form.date,
+        time: form.time,
+        doctor: form.doctor.trim(),
+        type: form.type,
+        status: form.status,
+      };
+
+      const response = isEditing
+        ? await fetch(
+            `/api/appointments/${encodeURIComponent(String(editingAppointmentId))}`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            },
+          )
+        : await fetch("/api/appointments", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
 
       if (!response.ok) {
         throw new Error(
-          await readError(response, "Could not create the appointment."),
+          await readError(
+            response,
+            isEditing
+              ? "Could not update the appointment."
+              : "Could not create the appointment.",
+          ),
         );
       }
 
-      const created: Appointment = await response.json();
+      if (isEditing) {
+        await loadAppointments();
+        setNotice("Appointment updated successfully.");
+      } else {
+        const created: Appointment = await response.json();
+        setAppointments((current) => [...current, created]);
+        setNotice("Appointment created successfully.");
+      }
 
-      setAppointments((current) => [...current, created]);
       setIsModalOpen(false);
+      setEditingAppointmentId(null);
       setForm(emptyForm);
-      setNotice("Appointment created successfully.");
+      setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(
+        err instanceof Error ? err.message : "Something went wrong.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -418,7 +464,9 @@ export default function Home() {
       setNotice("Appointment deleted successfully.");
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Could not delete the appointment.",
+        err instanceof Error
+          ? err.message
+          : "Could not delete the appointment.",
       );
     }
   }
@@ -495,7 +543,6 @@ export default function Home() {
                 Dashboard
               </h1>
             </div>
-
             <button
               onClick={openCreateModal}
               className="inline-flex items-center gap-2 rounded-xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700"
@@ -780,14 +827,14 @@ export default function Home() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1000px] table-fixed text-left">
+                <table className="w-full min-w-[1100px] table-fixed text-left">
                   <colgroup>
-                    <col className="w-[22%]" />
-                    <col className="w-[18%]" />
+                    <col className="w-[20%]" />
                     <col className="w-[17%]" />
-                    <col className="w-[19%]" />
-                    <col className="w-[14%]" />
-                    <col className="w-[10%]" />
+                    <col className="w-[16%]" />
+                    <col className="w-[17%]" />
+                    <col className="w-[15%]" />
+                    <col className="w-[15%]" />
                   </colgroup>
                   <thead className="bg-slate-50">
                     <tr>
@@ -885,13 +932,22 @@ export default function Home() {
                             </select>
                           </td>
                           <td className="px-5 py-4 align-middle">
-                            <button
-                              onClick={() => void handleDeleteAppointment(item)}
-                              aria-label={`Delete appointment for ${item.patient}`}
-                              className="rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
-                            >
-                              Delete
-                            </button>
+                            <div className="flex flex-wrap items-center gap-1">
+                              <button
+                                onClick={() => handleEditAppointment(item)}
+                                aria-label={`Edit appointment for ${item.patient}`}
+                                className="rounded-lg px-3 py-2 text-xs font-semibold text-teal-700 transition hover:bg-teal-50"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => void handleDeleteAppointment(item)}
+                                aria-label={`Delete appointment for ${item.patient}`}
+                                className="rounded-lg px-3 py-2 text-xs font-semibold text-rose-600 transition hover:bg-rose-50"
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))
@@ -933,7 +989,7 @@ export default function Home() {
           <section
             role="dialog"
             aria-modal="true"
-            aria-labelledby="create-appointment-title"
+            aria-labelledby="appointment-form-title"
             className="my-auto w-full max-w-xl rounded-3xl bg-white shadow-2xl"
           >
             <div className="flex items-start justify-between border-b border-slate-100 p-6">
@@ -942,13 +998,15 @@ export default function Home() {
                   Appointment management
                 </p>
                 <h2
-                  id="create-appointment-title"
+                  id="appointment-form-title"
                   className="mt-2 text-xl font-bold"
                 >
-                  Create appointment
+                  {isEditing ? "Edit appointment" : "Create appointment"}
                 </h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Enter the details to add a new record.
+                  {isEditing
+                    ? "Update the appointment details below."
+                    : "Enter the details to add a new record."}
                 </p>
               </div>
               <button
@@ -961,7 +1019,7 @@ export default function Home() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateAppointment} className="space-y-5 p-6">
+            <form onSubmit={handleSaveAppointment} className="space-y-5 p-6">
               {error && (
                 <div
                   role="alert"
@@ -1083,7 +1141,7 @@ export default function Home() {
                   htmlFor="appointment-status"
                   className="mb-2 block text-sm font-semibold text-slate-700"
                 >
-                  Initial status
+                  Status
                 </label>
                 <select
                   id="appointment-status"
@@ -1116,7 +1174,11 @@ export default function Home() {
                   disabled={isSaving}
                   className="rounded-xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {isSaving ? "Saving appointment..." : "Create appointment"}
+                  {isSaving
+                    ? "Saving appointment..."
+                    : isEditing
+                      ? "Save changes"
+                      : "Create appointment"}
                 </button>
               </div>
             </form>
