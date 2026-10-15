@@ -1,15 +1,22 @@
 # MediSlot — Appointment Management System
 
-MediSlot is a web-based appointment management application designed to help manage patient appointments through a simple dashboard. It supports creating appointments, viewing schedules, searching records, updating appointment statuses, and deleting appointments.
+MediSlot is a web-based appointment management application built to simplify appointment scheduling and record management through a user-friendly dashboard.
+
+## Live Demo
+
+- **Live Application:** https://medislot-gilt.vercel.app/
+- **GitHub Repository:** https://github.com/trishaldinujaya-debug/medislot
 
 ## Features
 
-- **Dashboard:** View appointment statistics and today's schedule.
+- **Dashboard:** View appointment statistics and scheduled appointments.
 - **Create appointments:** Record patient names, appointment dates and times, doctors, and appointment types.
-- **Manage appointments:** View and delete appointment records.
-- **Update status:** Mark appointments as Scheduled, Completed, or Cancelled.
+- **View appointments:** Display appointment records in the application.
+- **Edit appointments:** Update existing appointment information.
+- **Delete appointments:** Remove appointment records.
 - **Search:** Find appointments by patient name, doctor, or appointment type.
 - **Filter:** Filter appointments by status.
+- **Status management:** Manage Scheduled, Completed, and Cancelled appointments.
 - **Database integration:** Store appointment records in PostgreSQL.
 - **REST API:** Manage appointment data through Next.js API routes.
 
@@ -20,17 +27,17 @@ MediSlot is a web-based appointment management application designed to help mana
 - TypeScript
 - Tailwind CSS
 - PostgreSQL
-- Node.js
+- Neon — hosted PostgreSQL database
+- Node.js and npm
 - Git and GitHub
+- Vercel — application deployment
 
 ## Getting Started
 
 ### Prerequisites
 
-Install the following tools before running the application:
-
 - Node.js and npm
-- PostgreSQL
+- Access to a PostgreSQL database
 - Git
 
 ### 1. Clone the repository
@@ -48,17 +55,17 @@ npm install
 
 ### 3. Configure environment variables
 
-Create a `.env.local` file in the project root and add your PostgreSQL connection string:
+Create a `.env.local` file in the project root:
 
 ```env
-DATABASE_URL=your_postgresql_connection_string
+DATABASE_URL="your_postgresql_connection_string"
 ```
 
-Replace the placeholder with your own database connection string. Never commit `.env.local` or publish database credentials.
+Replace the placeholder with your own valid PostgreSQL connection string. Keep database credentials private and never commit `.env.local` to GitHub.
 
 ### 4. Set up the database
 
-Create a PostgreSQL database named `medislot` and ensure the `appointments` table has the schema required by the application.
+Create a PostgreSQL database and configure the `appointments` table to match the application's schema. For the hosted application, the database is provided by Neon.
 
 ### 5. Run the development server
 
@@ -66,7 +73,7 @@ Create a PostgreSQL database named `medislot` and ensure the `appointments` tabl
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open http://localhost:3000 in your browser.
 
 ## API Endpoints
 
@@ -75,20 +82,37 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | GET | `/api/health` | Check database connectivity |
 | GET | `/api/appointments` | Retrieve appointments |
 | POST | `/api/appointments` | Create an appointment |
-| PATCH | `/api/appointments/[id]` | Update appointment status |
+| PATCH | `/api/appointments/[id]` | Update an appointment |
 | DELETE | `/api/appointments/[id]` | Delete an appointment |
+
+## Testing
+
+The live application has been manually tested for the following features:
+
+- Creating appointments
+- Viewing appointments
+- Editing appointments
+- Deleting appointments
+- Searching appointments
+- Filtering appointments
+
+The production database health endpoint has also been verified.
 
 ## Production Build
 
-To check and build the application for production:
+Run the following command to create a production build:
 
 ```bash
 npm run build
 ```
 
-## Project Repository
+## Deployment
 
-[View MediSlot on GitHub](https://github.com/trishaldinujaya-debug/medislot)
+The application is deployed on Vercel and uses Neon PostgreSQL for persistent database storage.
+
+- **Production URL:** https://medislot-gilt.vercel.app/
+
+Configure `DATABASE_URL` in the deployment environment before deploying your own instance.
 
 ## Future Improvements
 
@@ -96,8 +120,13 @@ npm run build
 - Appointment reminders
 - Pagination and advanced filtering
 - Automated testing
-- Production deployment
+
+## Author
+
+**Dinujaya Fernando**
+
+GitHub: https://github.com/trishaldinujaya-debug
 
 ---
 
-**MediSlot** — Simplifying appointment management.
+**MediSlot — Simplifying appointment management.**

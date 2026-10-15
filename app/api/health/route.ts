@@ -16,7 +16,10 @@ export async function GET() {
     console.error("Database connection failed:", error);
 
     return NextResponse.json(
-      { status: "error", message: "Database connection failed" },
+      {
+        status: "error",
+        message: "Database connection failed",
+      },
       { status: 503 }
     );
   }
